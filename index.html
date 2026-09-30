@@ -21,8 +21,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <!-- Chart.js for interactive dashboard -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
   <style>
     /* ============================================================
@@ -4533,6 +4531,9 @@
   <!-- ============================================================
        JAVASCRIPT
        ============================================================ -->
+  <!-- Chart.js for interactive dashboard demo (moved out of <head> so it no longer blocks first paint) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
   <script>
     'use strict';
 
@@ -4617,7 +4618,7 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      const NODE_COUNT       = 52;
+      const NODE_COUNT       = window.innerWidth < 768 ? 24 : 52;
       const CONNECT_DIST     = 160;
       const MAX_CONNECTIONS   = 4;   // max edges per node (keeps it clean)
       const PULSE_INTERVAL   = 1200; // ms between spawning new pulses
@@ -4777,15 +4778,46 @@
           ctx.fill();
         });
 
-        requestAnimationFrame(draw);
+        rafHandle = requestAnimationFrame(draw);
       }
 
       /* ── Boot ── */
+      let rafHandle = null;
+      let isRunning = false;
+
+      function start() {
+        if (isRunning) return;
+        isRunning = true;
+        rafHandle = requestAnimationFrame(draw);
+      }
+
+      function stop() {
+        isRunning = false;
+        if (rafHandle) cancelAnimationFrame(rafHandle);
+        rafHandle = null;
+      }
+
       const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
       if (!mq.matches) {
         resize();
-        requestAnimationFrame(draw);
         window.addEventListener('resize', resize, { passive: true });
+
+        // Only animate while the hero is actually visible on screen, and
+        // pause entirely when the tab is backgrounded — this was previously
+        // running forever (O(n^2) edge checks + per-node gradients every
+        // frame), which showed up as jank/battery drain on mobile.
+        const visibilityObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && document.visibilityState === 'visible') start();
+            else stop();
+          });
+        }, { threshold: 0.01 });
+        visibilityObserver.observe(canvas);
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden') stop();
+          else if (canvas.getBoundingClientRect().top < window.innerHeight) start();
+        });
       } else {
         canvas.style.display = 'none';
       }
