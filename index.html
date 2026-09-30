@@ -10,6 +10,23 @@
   <meta property="og:image" content="./assets/og-image.png"><!-- OG-IMAGE: Replace with your custom 1200x630 Open Graph image -->
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Basic Organization schema. "url" left out deliberately — add it once
+       a production domain is live (a placeholder string here would fail
+       structured-data validation, since it has to be a real URL). sameAs/
+       address left out too, since the footer's LinkedIn/X links and any
+       business address are still placeholders. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Sellvio.ai",
+    "logo": "./assets/logo-mark.png",
+    "email": "admin@sellvio.co",
+    "description": "AI automations for small and medium businesses — WhatsApp bots, AI dashboards, and sales outreach automation."
+  }
+  </script>
+
   <link rel="icon" type="image/png" sizes="512x512" href="./assets/favicon-512.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/favicon-192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png">
