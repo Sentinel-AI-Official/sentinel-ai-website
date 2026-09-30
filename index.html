@@ -294,20 +294,32 @@
       align-items: center;
       background: linear-gradient(
         180deg,
-        rgba(10, 10, 15, calc(var(--nav-progress) * 0.92)),
-        rgba(10, 10, 15, calc(var(--nav-progress) * 0.68))
+        rgba(10, 10, 15, calc(var(--nav-progress) * 0.32)),
+        rgba(10, 10, 15, calc(var(--nav-progress) * 0.14))
       );
-      backdrop-filter: blur(calc(var(--nav-progress) * 14px));
-      -webkit-backdrop-filter: blur(calc(var(--nav-progress) * 14px));
+      transition: backdrop-filter var(--transition), border-color var(--transition);
+    }
+
+    /* Blur toggles as a discrete step (not continuously recalculated via
+       calc()) — iOS Safari doesn't reliably repaint a backdrop-filter whose
+       blur radius is driven frame-by-frame from JS, so it silently never
+       showed on mobile. This still animates smoothly via the CSS transition
+       above; only the gradient + logo stay pixel-synced to scroll. */
+    #navbar.nav-blurred {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid rgba(255, 255, 255, calc(var(--nav-progress) * 0.08));
     }
 
     [data-theme="light"] #navbar {
       background: linear-gradient(
         180deg,
-        rgba(250, 250, 247, calc(var(--nav-progress) * 0.94)),
-        rgba(250, 250, 247, calc(var(--nav-progress) * 0.72))
+        rgba(250, 250, 247, calc(var(--nav-progress) * 0.34)),
+        rgba(250, 250, 247, calc(var(--nav-progress) * 0.16))
       );
+    }
+
+    [data-theme="light"] #navbar.nav-blurred {
       border-bottom: 1px solid rgba(20, 20, 20, calc(var(--nav-progress) * 0.08));
     }
 
@@ -368,6 +380,16 @@
       transition: color var(--transition);
     }
     .nav-links a:hover { color: var(--text-primary); }
+
+    /* Menu links + theme switcher gradually fade out as you scroll down */
+    .nav-links, .theme-toggle {
+      opacity: calc(1 - var(--nav-progress, 0));
+      transition: opacity 0.1s linear;
+    }
+    #navbar.nav-links-hidden .nav-links,
+    #navbar.nav-links-hidden .theme-toggle {
+      pointer-events: none;
+    }
 
     .nav-actions {
       display: flex;
@@ -4576,6 +4598,8 @@
       const y = window.scrollY;
       const progress = Math.min(y / NAV_SCROLL_RANGE, 1);
       navbar.style.setProperty('--nav-progress', progress);
+      navbar.classList.toggle('nav-blurred', y > 10);
+      navbar.classList.toggle('nav-links-hidden', progress >= 0.98);
 
       // Hide/show nav CTA based on whether hero is in view
       if (heroSection) {
