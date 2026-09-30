@@ -284,24 +284,31 @@
        6. NAVBAR
        ============================================================ */
     #navbar {
+      --nav-progress: 0;
+      --logo-shift: 0px;
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 1000;
       height: var(--nav-height);
       display: flex;
       align-items: center;
-      transition: background var(--transition), border-color var(--transition), backdrop-filter var(--transition);
+      background: linear-gradient(
+        180deg,
+        rgba(10, 10, 15, calc(var(--nav-progress) * 0.92)),
+        rgba(10, 10, 15, calc(var(--nav-progress) * 0.68))
+      );
+      backdrop-filter: blur(calc(var(--nav-progress) * 14px));
+      -webkit-backdrop-filter: blur(calc(var(--nav-progress) * 14px));
+      border-bottom: 1px solid rgba(255, 255, 255, calc(var(--nav-progress) * 0.08));
     }
 
-    #navbar.scrolled {
-      background: rgba(10, 10, 15, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-subtle);
-    }
-
-    [data-theme="light"] #navbar.scrolled {
-      background: rgba(250, 250, 247, 0.88);
+    [data-theme="light"] #navbar {
+      background: linear-gradient(
+        180deg,
+        rgba(250, 250, 247, calc(var(--nav-progress) * 0.94)),
+        rgba(250, 250, 247, calc(var(--nav-progress) * 0.72))
+      );
+      border-bottom: 1px solid rgba(20, 20, 20, calc(var(--nav-progress) * 0.08));
     }
 
     .nav-inner {
@@ -330,6 +337,8 @@
       gap: 1px;
       line-height: 1;
       justify-self: center;
+      transform: translateX(calc(var(--nav-progress, 0) * -1 * var(--logo-shift, 0px)));
+      will-change: transform;
     }
     .nav-logo:hover { opacity: 0.85; }
 
@@ -2383,6 +2392,7 @@
        18. RESPONSIVE — 1024px (lg)
        ============================================================ */
     @media (min-width: 1024px) {
+      #navbar { --logo-shift: 150px; }
       .nav-links { display: flex; }
       .nav-cta { display: inline-flex; }
       .hamburger { display: none; }
@@ -4556,14 +4566,16 @@
       applyTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    /* ── 2. NAVBAR — scroll border + hero-passed ─────────── */
+    /* ── 2. NAVBAR — scroll-synced gradient + logo push ───── */
     const navbar = document.getElementById('navbar');
     const heroSection = document.getElementById('hero');
-    let lastScroll = 0;
+    const NAV_SCROLL_RANGE = 220; // px of scroll over which the navbar fully "arrives"
+    let navTicking = false;
 
-    window.addEventListener('scroll', () => {
+    function updateNavbar() {
       const y = window.scrollY;
-      navbar.classList.toggle('scrolled', y > 10);
+      const progress = Math.min(y / NAV_SCROLL_RANGE, 1);
+      navbar.style.setProperty('--nav-progress', progress);
 
       // Hide/show nav CTA based on whether hero is in view
       if (heroSection) {
@@ -4571,8 +4583,17 @@
         navbar.classList.toggle('hero-passed', heroBottom < navbar.offsetHeight);
       }
 
-      lastScroll = y;
+      navTicking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!navTicking) {
+        navTicking = true;
+        requestAnimationFrame(updateNavbar);
+      }
     }, { passive: true });
+
+    updateNavbar();
 
     /* ── 3. HAMBURGER / MOBILE NAV ────────────────────────── */
     const hamburger = document.getElementById('hamburger');
