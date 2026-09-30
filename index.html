@@ -307,10 +307,17 @@
     }
 
     .nav-inner {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      width: 100%;
+    }
+
+    .nav-left {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      width: 100%;
+      gap: 36px;
+      justify-self: start;
     }
 
     .nav-logo {
@@ -324,6 +331,7 @@
       align-items: baseline;
       gap: 1px;
       line-height: 1;
+      justify-self: center;
     }
     .nav-logo:hover { opacity: 0.85; }
 
@@ -358,6 +366,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      justify-self: end;
     }
 
     /* Theme toggle */
@@ -407,34 +416,44 @@
     .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-    /* Mobile nav panel */
+    /* Mobile nav dropdown (anchored left, below navbar) */
     .mobile-nav {
       position: fixed;
-      top: 0; right: 0;
-      width: min(320px, 85vw);
-      height: 100dvh;
+      top: var(--nav-height);
+      left: 24px;
+      width: min(300px, calc(100vw - 48px));
+      max-height: 0;
+      overflow: hidden;
       background: var(--bg-secondary);
-      border-left: 1px solid var(--border-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl, 16px);
+      box-shadow: var(--shadow-card, 0 16px 48px rgba(0,0,0,0.35));
       z-index: 999;
-      padding: calc(var(--nav-height) + 32px) 32px 32px;
+      padding: 0 28px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      transform: translateX(100%);
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .mobile-nav.open { transform: translateX(0); }
+    .mobile-nav.open {
+      max-height: 420px;
+      opacity: 1;
+      transform: translateY(0);
+      padding: 20px 28px 28px;
+    }
     .mobile-nav a {
       font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border-subtle);
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      padding: 12px 0;
       transition: color var(--transition);
     }
     .mobile-nav a:hover { color: var(--accent); }
-    .mobile-nav .mobile-cta { margin-top: 24px; }
+    .mobile-nav .mobile-cta { margin-top: 12px; }
 
     .nav-overlay {
       position: fixed;
@@ -3513,15 +3532,21 @@
     <nav id="navbar" role="navigation" aria-label="Main navigation">
       <div class="container nav-inner">
 
+        <div class="nav-left">
+          <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav">
+            <span></span><span></span><span></span>
+          </button>
+
+          <ul class="nav-links" role="list">
+            <li><a href="#services">Services</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="javascript:void(0)" onclick="openAboutModal()" aria-haspopup="dialog">About Us</a></li>
+          </ul>
+        </div>
+
         <a href="#hero" class="nav-logo" aria-label="Sellvio.ai home">
           <img src="./assets/logo-mark.png" alt="Sellvio.ai" class="logo-mark-img" width="110" height="54">
         </a>
-
-        <ul class="nav-links" role="list">
-          <li><a href="#services">Services</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="javascript:void(0)" onclick="openAboutModal()" aria-haspopup="dialog">About Us</a></li>
-        </ul>
 
         <div class="nav-actions">
           <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
@@ -3540,10 +3565,6 @@
           </button>
 
           <a href="javascript:void(0)" onclick="openBookingModal()" class="btn btn-primary nav-cta" aria-haspopup="dialog">Book a Discovery Call</a>
-
-          <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav">
-            <span></span><span></span><span></span>
-          </button>
         </div>
 
       </div>
