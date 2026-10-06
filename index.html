@@ -2676,7 +2676,7 @@
     /* Screen area — iframe lives here */
     .phone-screen {
       width: 100%;
-      height: 540px;
+      height: 640px;
       overflow: hidden;
       position: relative;
       background: #09091c;
@@ -2798,23 +2798,23 @@
     @media (max-width: 640px) {
       .phone-metric { display: none; }
       .phone-frame {
-        width: 280px;
+        width: min(320px, calc(100vw - 48px));
         transform: none;
         border-radius: 40px;
       }
       .phone-showcase:hover .phone-frame { transform: none; }
-      .phone-screen { height: 480px; }
+      .phone-screen { height: 620px; }
       .phone-showcase { padding: 24px 16px; }
     }
 
     @media (min-width: 1024px) {
-      .phone-frame { width: 320px; }
-      .phone-screen { height: 500px; }
+      .phone-frame { width: 340px; }
+      .phone-screen { height: 640px; }
     }
 
     @media (min-width: 1280px) {
-      .phone-frame { width: 340px; }
-      .phone-screen { height: 520px; }
+      .phone-frame { width: 360px; }
+      .phone-screen { height: 660px; }
     }
 
     /* ============================================================
